@@ -16,6 +16,49 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('product.index')" :active="request()->routeIs('product.*')">
+                        {{ __('Product') }}
+                    </x-nav-link>
+                </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('order.index')" :active="request()->routeIs('order.*')">
+                        {{ __('Order') }}
+                    </x-nav-link>
+                </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('size.index')" :active="request()->routeIs('size.*')">
+                        {{ __('Size') }}
+                    </x-nav-link>
+                </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('color.index')" :active="request()->routeIs('color.*')">
+                        {{ __('Color') }}
+                    </x-nav-link>
+                </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('category.index')" :active="request()->routeIs('category.*')">
+                        {{ __('Category') }}
+                    </x-nav-link>
+                </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('power.index')" :active="request()->routeIs('power.*')">
+                        {{ __('Power') }}
+                    </x-nav-link>
+                </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('brand.index')" :active="request()->routeIs('brand.*')">
+                        {{ __('Brand') }}
+                    </x-nav-link>
+                </div>
+
             </div>
 
             <!-- Settings Dropdown -->
@@ -23,7 +66,12 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                            @auth
                             <div>{{ Auth::user()->name }}</div>
+                        @else
+                            <div>Guest</div>
+                        @endauth
+
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -71,12 +119,25 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
         </div>
-
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                @auth
+            <div class="font-medium text-base text-gray-800 dark:text-gray-200">
+                {{ Auth::user()->name }}
+            </div>
+            <div class="font-medium text-sm text-gray-500">
+                {{ Auth::user()->email }}
+            </div>
+        @else
+            <div class="font-medium text-base text-gray-800 dark:text-gray-200">
+                Guest
+            </div>
+            <div class="font-medium text-sm text-gray-500">
+                Please log in
+            </div>
+        @endauth
+
             </div>
 
             <div class="mt-3 space-y-1">
