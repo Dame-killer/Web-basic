@@ -20,15 +20,15 @@ class BrandController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required',
-    ]);
+    {
+        $request->validate([
+            'name' => 'required',
+        ]);
 
-    Brand::create($request->only('name'));
+        Brand::create($request->only('name'));
 
-    return redirect()->back()->with('success', 'Brand added successfully!');
-}
+        return redirect()->back()->with('success', 'Brand added successfully!');
+    }
 
 
 

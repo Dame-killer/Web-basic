@@ -181,3 +181,25 @@
         @stack('js')
     </body>
 </html>
+
+<style>
+.wrapper {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  overflow-x: hidden;
+}
+
+.main-panel {
+  padding: 20px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.content {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  min-height: 80vh;
+}
+</style>

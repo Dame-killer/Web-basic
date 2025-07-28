@@ -21,8 +21,13 @@ class SizeController extends Controller
 
     public function store(Request $request)
     {
-        Size::create($request->all());
-        return redirect()->route('size.index');
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        Size::create($request->only('name'));
+
+        return redirect()->back()->with('success', 'Size added successfully!');
     }
 
     public function edit(Size $size)

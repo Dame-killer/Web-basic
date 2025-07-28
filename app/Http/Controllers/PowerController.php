@@ -21,8 +21,13 @@ class PowerController extends Controller
 
     public function store(Request $request)
     {
-        Power::create($request->all());
-        return redirect()->route('power.index');
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        Power::create($request->only('name'));
+
+        return redirect()->back()->with('success', 'Power added successfully!');
     }
 
     public function edit(Power $power)

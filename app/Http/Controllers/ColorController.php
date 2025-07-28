@@ -21,8 +21,14 @@ class ColorController extends Controller
 
     public function store(Request $request)
     {
-        Color::create($request->all());
-        return redirect()->route('color.index');
+        $request->validate([
+            'name' => 'required',
+            'code' => 'required|unique:colors,code',
+        ]);
+
+        Color::create($request->only('name', 'code'));
+
+        return redirect()->back()->with('success', 'Color added successfully!');
     }
 
     public function edit(Color $color)

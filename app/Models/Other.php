@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Color extends Model
+class Other extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name', 'code'  // (đảm bảo 'name' cũng được thêm nếu cần)
+        'name',  
     ];
 }

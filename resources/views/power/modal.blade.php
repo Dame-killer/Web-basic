@@ -5,7 +5,7 @@
         @csrf
         {{-- <input type="hidden" name="_method" value="POST" id="formMethod"> --}}
         <div class="modal-header">
-          <h5 class="modal-title" id="modalLabel">Add Brand</h5>
+          <h5 class="modal-title" id="modalLabel">Add Power</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
