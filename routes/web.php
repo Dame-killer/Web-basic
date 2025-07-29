@@ -12,14 +12,17 @@ use App\Http\Controllers\ProductDetailController;
 use App\Http\Controllers\OrderDetailController;
 use App\Http\Controllers\PowerController;
 use App\Http\Controllers\OtherController;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/', function () {
+    return Auth::check()
+        ? redirect('/dashboard')
+        : redirect()->route('login');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
