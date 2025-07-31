@@ -11,6 +11,7 @@ use App\Models\Size;
 use App\Models\Color;
 use App\Models\Power;
 use App\Models\ProductDetail;
+use App\Models\Other;
 
 class ProductController extends Controller
 {
@@ -108,15 +109,17 @@ class ProductController extends Controller
         $product = Product::with('brand', 'category')->findOrFail($id);
 
         // Lấy các bản ghi ProductDetail tương ứng
-        $product_details = ProductDetail::with(['size', 'color', 'power'])
+        $product_details = ProductDetail::with(['size', 'color', 'power', 'other'])
                                 ->where('product_id', $id)
                                 ->get();
 
         $sizes = Size::all();
         $colors = Color::all();
         $powers = Power::all();
+        $others = Other::all();
 
-        return view('product.product-detail', compact('product', 'product_details', 'sizes', 'colors', 'powers'));
+
+        return view('product.product-detail', compact('product', 'product_details', 'sizes', 'colors', 'powers', 'others'));
     }
 
 }

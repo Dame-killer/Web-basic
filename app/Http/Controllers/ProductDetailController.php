@@ -8,17 +8,19 @@ use App\Models\ProductDetail;
 use App\Models\Size;
 use App\Models\Color;
 use App\Models\Power;
+use App\Models\Other;
+use App\Models\Product;
 
 class ProductDetailController extends Controller
 {
     public function index()
     {
-        $product_details = Product::with(['size', 'color', 'power'])->get();
         $product_details = ProductDetail::all();
         $sizes = Size::all();
         $colors = Color::all();
         $powers = Power::all();
-        return view('product.product-detail', compact('product_details', 'sizes', 'colors', 'powers'));
+        $others = Other::all();
+        return view('product.product-detail', compact('product_details', 'sizes', 'colors', 'powers', 'others'));
     }
 
     public function create()
@@ -38,6 +40,7 @@ class ProductDetailController extends Controller
             'size_id' => $request->size_id ?? null,
             'color_id' => $request->color_id ?? null, 
             'power_id' => $request->power_id ?? null,
+            'other_id' => $request->other_id ?? null,
             'stock' => $request->stock,
             'price' => $request->price, 
         ]);
@@ -47,22 +50,23 @@ class ProductDetailController extends Controller
     }
 
 
-    public function update(Request $request, ProductDetail $product)
+    public function update(Request $request, ProductDetail $productDetail)
     {
         $request->validate([
-            'name' => 'required',
+            'stock' => 'required',
         ]);
 
-        $product->update($request->only('name', 'code', 'description', 'brand_id', 'category_id', 'price', 'stock'));
+        $productDetail->update($request->only('product_id', 'size_id', 'color_id', 'power_id', 'other_id', 'price', 'stock'));
 
-        return redirect()->back()->with('success', 'Product detail updated successfully!');
+        return redirect()->route('product.show', $request->product_id)->with('success', 'Product detail updated successfully!');
     }
 
 
 
-    public function destroy(ProductDetail $product)
+    public function destroy(Request $request, ProductDetail $productDetail)
     {
-        $product->delete();
-        return redirect()->route('product_detail.index');
+        $productDetail->delete();
+        return back()->with('success', 'Product detail deleted successfully!');
     }
+
 }

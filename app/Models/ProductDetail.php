@@ -14,6 +14,7 @@ class ProductDetail extends Model
         'size_id',
         'color_id',
         'power_id',
+        'other_id',
         'stock',
         'price'
     ];
@@ -21,6 +22,10 @@ class ProductDetail extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+    public function other()
+    {
+        return $this->belongsTo(Other::class);
     }
     public function size()
     {

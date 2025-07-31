@@ -48,7 +48,7 @@
             document.getElementById('modalDate').textContent = data.order.order_date;
             document.getElementById('modalAddress').textContent = data.order.address;
             document.getElementById('modalStatus').textContent = (data.order.status == 0) ? 'Waiting' : 'Processed';
-            document.getElementById('modalTotal').textContent = data.order.total;
+            document.getElementById('modalTotal').textContent = `${data.order.total} VND`;
             const tbody = document.getElementById('modalProductsBody');
             tbody.innerHTML = '';
 
@@ -58,7 +58,7 @@
                 <td>${i + 1}</td>
                 <td>${d.product_detail.product?.code} - ${d.product_detail.product?.name} - ${d.product_detail.color?.name || d.product_detail.power?.name || ''}</td>
                 <td>${d.quantity}</td>
-                <td>${d.price}</td>
+                <td>${d.price} VND</td>
               `;
               tbody.appendChild(tr);
             });

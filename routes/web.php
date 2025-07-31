@@ -25,6 +25,10 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
+    //DashBoard
+    Route::get('/dashboard', [OrderController::class, 'indexDashBoard'])->name('dashboard');
+
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -47,9 +51,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/product/{product}', [ProductController::class, 'show'])->name('product.show');
 
     Route::resource('order', OrderController::class);
-    Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order.show');
     Route::get('/orders/{order}/details', [OrderController::class, 'getDetails']);
+    Route::put('/orders/{id}', [OrderController::class, 'update'])->name('orders.update');
 
     Route::resource('product_detail', ProductDetailController::class);
     Route::post('/product_detail/store', [ProductDetailController::class, 'store'])->name('product_detail.store');

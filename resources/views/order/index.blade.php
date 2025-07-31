@@ -34,18 +34,21 @@
             </thead>
             <tbody>
               @foreach($orders as $order)
+              @php
+                  $details = $order_details->where('order_id', $order->id)->values(); // lọc theo order_id
+              @endphp
               <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $order->code }}</td>
                 <td>{{ $order->name }}</td>
                 <td>{{ $order->order_date }}</td>
                 <td>{{ $order->address }}</td>
-                <td>{{ $order->total }}</td>
+                <td>{{ $order->total }} VND</td>
                 <td>
                   @if($order->status == 0)
-                    <span class="badge bg-warning text-dark">Waiting</span>
+                    <span class="badge bg-warning text-dark">Pending</span>
                   @elseif($order->status == 1)
-                    <span class="badge bg-success">Processed</span>
+                    <span class="badge bg-success">Approved</span>
                   @else
                     <span class="badge bg-secondary">Unknown</span>
                   @endif
@@ -67,7 +70,11 @@
                     data-order_date="{{ $order->order_date }}"
                     data-mode="edit"
                     data-action="{{ route('order.update', $order->id) }}"
-                    data-bs-toggle="modal" data-bs-target="#modal">
+                    data-order='@json($order)'
+                    data-details='@json($details)'
+                    data-bs-toggle="modal" 
+                    data-bs-target="#modal"
+                    >
                     <i class="fa fa-edit"></i>
                   </button>
 
@@ -106,43 +113,36 @@ document.addEventListener('DOMContentLoaded', function () {
   const totalInput = document.getElementById('total');
   const modalTitle = document.getElementById('modalLabel');
   const submitBtn = document.getElementById('submitBtn');
-
+  const modal = document.getElementById('modal');
   modal.addEventListener('show.bs.modal', function (event) {
     const button = event.relatedTarget;
     const mode = button.getAttribute('data-mode');
-    const action = button.getAttribute('data-action');
-    const code = button.getAttribute('data-code') || '';
-    const name = button.getAttribute('data-name') || '';
-    const status = button.getAttribute('data-status') || '';
-    const order_date = button.getAttribute('data-order_date') || '';
-    const address = button.getAttribute('data-address') || '';
-    const total = button.getAttribute('data-total') || '';
-
-    form.action = action;
-    codeInput.value = code;
-    nameInput.value = name;
-    statusInput.value = status;
-    addressInput.value = address;
-    totalInput.value = total;
-    order_dateInput.value = order_date;
-
-    // Xoá input _method cũ nếu có
-    const oldMethod = document.querySelector('input[name="_method"]');
-    if (oldMethod) oldMethod.remove();
+    const form = document.getElementById('form');
 
     if (mode === 'edit') {
-      modalTitle.textContent = 'Edit Order';
-      submitBtn.textContent = 'Update';
+      const action = button.getAttribute('data-action');
+      form.action = action;
 
-      const methodInput = document.createElement('input');
-      methodInput.setAttribute('type', 'hidden');
-      methodInput.setAttribute('name', '_method');
-      methodInput.setAttribute('value', 'PUT');
-      form.appendChild(methodInput);
-    } else {
-      modalTitle.textContent = 'Add Order';
-      submitBtn.textContent = 'Save';
+      // Xóa input _method cũ nếu có
+      const existingMethod = form.querySelector('input[name="_method"]');
+      if (existingMethod) existingMethod.remove();
+
+      // Tạo input _method mới
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = '_method';
+      input.value = 'PUT';
+      form.appendChild(input);
+    } else {  
+      // Nếu là thêm mới
+      form.action = "{{ route('order.store') }}";
+
+      // Xóa input _method nếu có (để dùng POST mặc định)
+      const existingMethod = form.querySelector('input[name="_method"]');
+      if (existingMethod) existingMethod.remove();
     }
   });
+
+
 });
 </script>

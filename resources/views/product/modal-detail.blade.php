@@ -33,10 +33,20 @@
 
           <div class="mb-3">
             <label for="power_id" class="form-label">Power</label>
-            <select class="form-select" id="power_id" name="power_id" required>
+            <select class="form-select" id="power_id" name="power_id" >
               <option disabled selected value="">Select</option>
               @foreach($powers as $power)
                 <option value="{{ $power->id }}">{{ $power->name }}</option>
+              @endforeach
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="other_id" class="form-label">Other</label>
+            <select class="form-select" id="other_id" name="other_id" >
+              <option disabled selected value="">Select</option>
+              @foreach($others as $other)
+                <option value="{{ $other->id }}">{{ $other->name }}</option>
               @endforeach
             </select>
           </div>

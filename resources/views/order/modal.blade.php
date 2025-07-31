@@ -2,7 +2,7 @@
 <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <form id="form" method="POST" action="{{ isset($order) ? route('order.update', $order->id) : route('order.store') }}">
+      <form id="form" method="POST">
         @csrf
 
         <!-- HEADER -->
@@ -43,9 +43,9 @@
 
             <div class="col-md-6 mb-3">
               <label for="status" class="form-label">Status</label>
-              <select class="form-select" id="status" name="status">
-                <option value="0">Waiting</option>
-                <option value="1">Processed</option>
+              <select class="form-select" id="status" name="status" required>
+                <option value="0">Pending</option>
+                <option value="1">Approved</option>
               </select>
             </div>
           </div>
@@ -64,28 +64,9 @@
                 </tr>
               </thead>
               <tbody id="productBody">
-              @if(isset($order))
-                @method('PUT')
-                @foreach ($order_details as $detail)
-                  <tr>
-                    <td>
-                      <select name="product_details[]" class="form-select">
-                        @foreach ($product_details as $item)
-                          <option value="{{ $item->id }}" data-price="{{ $item->price }}"
-                            {{ $detail->product_detail_id == $item->id ? 'selected' : '' }}>
-                            {{ $item->product->code }} - {{ $item->product->name }} - {{ $item->color->name ?? $item->power->name }}
-                          </option>
-                        @endforeach
-                      </select>
-                    </td>
-                    <td><input type="number" name="quantities[]" class="form-control quantity" value="{{ $detail->quantity }}" /></td>
-                    <td><input type="number" name="prices[]" class="form-control price" value="{{ $detail->price }}" readonly /></td>
-                    <td><input type="text" class="form-control total-field" value="{{ $detail->quantity * $detail->price }}" readonly /></td>
-                    <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
-                  </tr>
-                @endforeach
-              @endif
-            </tbody>
+                <!-- JavaScript sẽ render dòng sản phẩm ở đây -->
+              </tbody>
+
 
             </table>
             <button type="button" class="btn btn-outline-primary" id="addRowBtn">+ Add Product</button>
@@ -103,60 +84,115 @@
 </div>
 <!-- SCRIPT -->
 <script>
-  // Thêm dòng sản phẩm
-  document.getElementById('addRowBtn').addEventListener('click', function () {
+  const modal = document.getElementById('modal');
+  modal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const mode = button.getAttribute('data-mode');
+    const form = document.getElementById('form');
     const tbody = document.getElementById('productBody');
+    const methodInput = form.querySelector('input[name="_method"]');
+
+    // Reset form
+    form.reset();
+    tbody.innerHTML = '';
+    document.getElementById('total').value = 0;
+
+    if (mode === 'edit') {
+      const order = JSON.parse(button.getAttribute('data-order'));
+      const details = JSON.parse(button.getAttribute('data-details'));
+
+      // Set action và thêm method PUT
+      form.action = `/orders/${order.id}`;
+      if (!methodInput) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = '_method';
+        input.value = 'PUT';
+        form.appendChild(input);
+      }
+
+      // Gán các giá trị order
+      document.getElementById('code').value = order.code;
+      document.getElementById('name').value = order.name;
+      document.getElementById('address').value = order.address;
+      document.getElementById('orderDate').value = order.order_date;
+      document.getElementById('status').value = order.status;
+
+      // Render product details
+      details.forEach(detail => {
+        const row = createProductRow(detail.product_detail_id, detail.quantity, detail.price);
+        tbody.appendChild(row);
+      });
+    } else {
+      // Mode add
+      form.action = '/orders';
+      if (methodInput) methodInput.remove();
+    }
+
+    updateGrandTotal();
+  });
+
+  // Tạo dòng sản phẩm
+  function createProductRow(productDetailId = '', quantity = 1, price = 0) {
     const row = document.createElement('tr');
+
+    let options = `
+      @foreach ($product_details as $item)
+        <option value="{{ $item->id }}" data-price="{{ $item->price }}">
+          {{ $item->product->code }} - {{ $item->product->name }} - {{ $item->color->name ?? $item->power->name }}
+        </option>
+      @endforeach
+    `.trim();
 
     row.innerHTML = `
       <td>
         <select name="product_details[]" class="form-select">
-          @foreach ($product_details as $detail)
-            <option value="{{ $detail->id }}" data-price="{{ $detail->price }}">
-              {{ $detail->product->code }} - {{ $detail->product->name }} - {{ $detail->color->name ?? $detail->power->name }}
-            </option>
-          @endforeach
+          ${options}
         </select>
       </td>
-      <td><input type="number" name="quantities[]" class="form-control quantity" min="1" value="1" /></td>
-      <td><input type="number" name="prices[]" class="form-control price" min="0" step="0.01" readonly /></td>
+      <td><input type="number" name="quantities[]" class="form-control quantity" min="1" value="${quantity}" /></td>
+      <td><input type="number" name="prices[]" class="form-control price" min="0" step="0.01" value="${price}" readonly /></td>
       <td><input type="text" class="form-control total-field" readonly /></td>
       <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
     `;
 
-    tbody.appendChild(row);
-
-    // Gán giá tự động khi vừa thêm row mới
+    // Chọn đúng option
     const select = row.querySelector('select[name="product_details[]"]');
-    const priceInput = row.querySelector('input.price');
-    const selectedOption = select.options[select.selectedIndex];
-    priceInput.value = selectedOption.getAttribute('data-price');
+    const matchedOption = Array.from(select.options).find(opt => opt.value == productDetailId);
+    if (matchedOption) {
+      matchedOption.selected = true;
+      row.querySelector('.price').value = matchedOption.getAttribute('data-price');
+    }
+
     updateRowTotal(row);
+    return row;
+  }
+
+  // Add product row (Add mode)
+  document.getElementById('addRowBtn').addEventListener('click', function () {
+    const row = createProductRow();
+    document.getElementById('productBody').appendChild(row);
     updateGrandTotal();
   });
 
-  // Khi thay đổi sản phẩm hoặc nhập số lượng
+  // Change & remove event handlers
   document.getElementById('productTable').addEventListener('change', function (e) {
     const row = e.target.closest('tr');
 
-    // Thay đổi sản phẩm -> cập nhật giá
     if (e.target.name === 'product_details[]') {
       const selectedOption = e.target.options[e.target.selectedIndex];
       const price = selectedOption.getAttribute('data-price');
-      const priceInput = row.querySelector('input.price');
-      priceInput.value = price;
+      row.querySelector('input.price').value = price;
       updateRowTotal(row);
       updateGrandTotal();
     }
 
-    // Thay đổi số lượng -> tính lại tổng
     if (e.target.classList.contains('quantity')) {
       updateRowTotal(row);
       updateGrandTotal();
     }
   });
 
-  // Xóa dòng
   document.getElementById('productTable').addEventListener('click', function (e) {
     if (e.target.classList.contains('remove-row')) {
       e.target.closest('tr').remove();
@@ -179,4 +215,5 @@
     document.getElementById('total').value = grandTotal.toFixed(0);
   }
 </script>
+
 

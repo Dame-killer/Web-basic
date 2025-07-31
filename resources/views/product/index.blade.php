@@ -45,7 +45,9 @@
                 </td>
                 <td>{{ $product->code }}</td>
                 <td>{{ $product->name }}</td>
-                <td>{{ $product->description }}</td>
+                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  {{ $product->description }}
+              </td>
                 <td>{{ $product->brand?->name ?? '-' }}</td>     
                 <td>{{ $product->category?->name ?? '-' }}</td>  
                 <td class="text-end"> 

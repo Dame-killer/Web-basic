@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\ProductDetail;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -16,7 +17,49 @@ class OrderController extends Controller
         $orders = Order::all();
         $order_details = OrderDetail::all();
         $product_details = ProductDetail::with('product', 'color', 'power')->get();
+
         return view('order.index', compact('orders', 'product_details', 'order_details'));
+    }
+    public function indexDashBoard()
+    {
+        $totalProducts = \App\Models\Product::count();
+        $totalOrders = \App\Models\Order::count();
+        $totalRevenue = \App\Models\Order::sum('total');
+        $approvedRevenue = \App\Models\Order::where('status', 1)->sum('total');
+
+        $monthlyRevenue = \App\Models\Order::select(
+            DB::raw('MONTH(order_date) as month'),
+            DB::raw('SUM(total) as revenue')
+        )
+        ->groupBy('month')
+        ->orderBy('month')
+        ->get()
+        ->keyBy('month');
+
+        $months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+
+        $revenues = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $revenue = $monthlyRevenue->firstWhere('month', $i)->revenue ?? 0;
+            $revenues[] = $revenue;
+        }
+        $pendingOrders = Order::where('status', 0)->count();
+        $recentOrders = Order::orderBy('order_date', 'desc')->limit(5)->get();
+
+        return view('dashboard', compact(
+            'totalProducts',
+            'totalOrders',
+            'totalRevenue',
+            'approvedRevenue',
+            'months',
+            'revenues',
+            'pendingOrders',
+            'recentOrders'
+        ));
     }
 
     public function create()
@@ -59,8 +102,9 @@ class OrderController extends Controller
     }
 
 
-    public function update(Request $request, Order $order)
+    public function update(Request $request, Order $order, $id)
     {
+        $order = Order::findOrFail($id);
         $request->validate([
             'code' => 'required',
             'name' => 'required',
@@ -110,7 +154,5 @@ class OrderController extends Controller
         $order = Order::with('orderDetails')->findOrFail($id);
         return response()->json($order->orderDetails);
     }
-
-
 
 }
