@@ -27,7 +27,9 @@
 
           <div class="mb-3">
             <label for="orderDate" class="form-label">Order date</label>
-            <input type="date" class="form-control" id="orderDate" name="orderDate" />
+            <input type="date" class="form-control" id="orderDate" name="order_date"
+       value="{{ now()->toDateString() }}" /> 
+
           </div>
 
 

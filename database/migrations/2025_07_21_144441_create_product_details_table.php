@@ -22,12 +22,6 @@ return new class extends Migration
         $table->integer('stock')->default(0); // số lượng tồn kho
 
         $table->timestamps();
-
-        // Khóa ngoại
-        // $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-        // $table->foreign('size_id')->references('id')->on('sizes')->onDelete('set null');
-        // $table->foreign('color_id')->references('id')->on('colors')->onDelete('set null');
-        // $table->foreign('power_id')->references('id')->on('powers')->onDelete('set null');
     });
     }
 

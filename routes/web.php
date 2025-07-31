@@ -15,16 +15,16 @@ use App\Http\Controllers\OtherController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return redirect()->route('login');
-});
-
-Route::get('/', function () {
     return Auth::check()
         ? redirect('/dashboard')
         : redirect()->route('login');
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -44,9 +44,14 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('product', ProductController::class);
     Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
+    Route::get('/product/{product}', [ProductController::class, 'show'])->name('product.show');
 
     Route::resource('order', OrderController::class);
-    Route::resource('product-detail', ProductDetailController::class);
+    Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
+
+    Route::resource('product_detail', ProductDetailController::class);
+    Route::post('/product_detail/store', [ProductDetailController::class, 'store'])->name('product_detail.store');
+
     Route::resource('order-detail', OrderDetailController::class);
 
     Route::resource('power', PowerController::class);

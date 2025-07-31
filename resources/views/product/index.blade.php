@@ -23,6 +23,7 @@
             <thead class="text-primary">
               <tr>
                 <th>STT</th>
+                <th>Image</th>
                 <th>Code</th>
                 <th>Name</th>
                 <th>Description</th>
@@ -35,18 +36,31 @@
               @foreach($products as $product)
               <tr>
                 <td>{{ $loop->iteration }}</td>
+                <td>
+                @if($product->image)
+                  <img src="{{ asset('uploads/products/' . $product->image) }}" alt="Image" width="80">
+                @else
+                  
+                @endif
+                </td>
                 <td>{{ $product->code }}</td>
                 <td>{{ $product->name }}</td>
                 <td>{{ $product->description }}</td>
                 <td>{{ $product->brand?->name ?? '-' }}</td>     
                 <td>{{ $product->category?->name ?? '-' }}</td>  
                 <td class="text-end"> 
+                  {{-- Nút Xem thêm --}}
+                  <a href="{{ route('product.show', $product->id) }}" class="btn btn-sm btn-info">
+                    <i class="fa fa-eye"></i>
+                  </a>
+
                   {{-- Nút Edit --}}
                   <button class="btn btn-sm btn-warning"
                     data-bs-toggle="modal"
                     data-bs-target="#modal"
                     data-mode="edit"
                     data-id="{{ $product->id }}"
+                    data-image="{{ $product->image }}"
                     data-code="{{ $product->code }}"
                     data-name="{{ $product->name }}"
                     data-description="{{ $product->description }}"
@@ -96,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const mode = button.getAttribute('data-mode');
     const action = button.getAttribute('data-action');
     const code = button.getAttribute('data-code') || '';
+    const image = button.getAttribute('data-image') || '';
     const name = button.getAttribute('data-name') || '';
     const description = button.getAttribute('data-description') || '';
     const brand_id = button.getAttribute('data-brand_id') || '';
@@ -112,6 +127,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const oldMethod = document.querySelector('input[name="_method"]');
     if (oldMethod) oldMethod.remove();
 
+    const previewImage = document.getElementById('previewImage');
+
     if (mode === 'edit') {
       modalTitle.textContent = 'Edit Other';
       submitBtn.textContent = 'Update';
@@ -121,9 +138,21 @@ document.addEventListener('DOMContentLoaded', function () {
       methodInput.setAttribute('name', '_method');
       methodInput.setAttribute('value', 'PUT');
       form.appendChild(methodInput);
+
+      // ✅ Hiển thị ảnh cũ
+      if (image) {
+        previewImage.src = `/uploads/products/${image}`;
+        previewImage.style.display = 'block';
+      } else {
+        previewImage.style.display = 'none';
+      }
     } else {
       modalTitle.textContent = 'Add Other';
       submitBtn.textContent = 'Save';
+
+      // ✅ Ẩn ảnh preview khi thêm mới
+      previewImage.style.display = 'none';
+      form.reset();
     }
   });
 });

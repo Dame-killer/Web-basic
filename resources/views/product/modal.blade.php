@@ -2,7 +2,7 @@
 <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="form" method="POST">
+      <form id="form" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="modal-header">
           <h5 class="modal-title" id="modalLabel">Add Product</h5>
@@ -44,6 +44,15 @@
               @endforeach
             </select>
           </div>
+
+          <!-- Upload Image -->
+          <div class="mb-3">
+            <label for="image" class="form-label">Image</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+            <img id="previewImage" src="" alt="" style="max-width: 100px; margin-top: 10px; display: none;">
+          </div>
+
+
         </div>
 
         <div class="modal-footer">

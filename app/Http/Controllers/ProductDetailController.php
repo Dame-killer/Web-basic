@@ -4,62 +4,64 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\ProductDetail;
+use App\Models\Size;
+use App\Models\Color;
+use App\Models\Power;
 
 class ProductDetailController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $product_details = Product::with(['size', 'color', 'power'])->get();
+        $product_details = ProductDetail::all();
+        $sizes = Size::all();
+        $colors = Color::all();
+        $powers = Power::all();
+        return view('product.product-detail', compact('product_details', 'sizes', 'colors', 'powers'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('product_detail.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        // Validate dữ liệu đầu vào
+        $request->validate([
+        ]);
+
+        // Lưu dữ liệu
+        ProductDetail::create([
+            'product_id' => $request->product_id,
+            'size_id' => $request->size_id,
+            'color_id' => $request->color_id,
+            'power_id' => $request->power_id,
+            'stock' => $request->stock,
+        ]);
+
+        // Chuyển hướng sau khi thêm
+        return redirect()->route('product.product-detail')->with('success', 'Product detail added successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+
+    public function update(Request $request, ProductDetail $product)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        $product->update($request->only('name', 'code', 'description', 'brand_id', 'category_id'));
+
+        return redirect()->back()->with('success', 'Product detail updated successfully!');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(ProductDetail $product)
     {
-        //
+        $product->delete();
+        return redirect()->route('product_detail.index');
     }
 }

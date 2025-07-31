@@ -32,7 +32,7 @@
               </tr>
             </thead>
             <tbody>
-              @foreach($products as $order)
+              @foreach($orders as $order)
               <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $order->code }}</td>

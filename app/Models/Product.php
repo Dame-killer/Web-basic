@@ -15,6 +15,7 @@ class Product extends Model
         'description',
         'brand_id',
         'category_id',
+        'image'
     ];
 
     // Các quan hệ nếu bạn có:

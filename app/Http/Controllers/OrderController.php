@@ -4,62 +4,60 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Order;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $orders = Order::all();
+        return view('order.index', compact('orders'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('order.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        // Validate dữ liệu đầu vào
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:50',
+            'order_date' => 'nullable|string',
+        ]);
+
+        // Lưu dữ liệu
+        Order::create([
+            'code' => $request->code,
+            'name' => $request->name,
+            'order_date' => $request->order_date ?? now(),
+            'address' => $request->address,
+            'status' => $request->status,
+        ]);
+
+        // Chuyển hướng sau khi thêm
+        return redirect()->route('order.index')->with('success', 'Order added successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, Order $order)
     {
-        //
+        $request->validate([
+            'code' => 'required',
+            'name' => 'required',
+        ]);
+
+        $order->update($request->only('code', 'name', 'order_date', 'address', 'status'));
+
+        return redirect()->back()->with('success', 'Order updated successfully!');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Order $order)
     {
-        //
+        $order->delete();
+        return redirect()->route('order.index');
     }
 }
