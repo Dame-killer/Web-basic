@@ -52,7 +52,7 @@
             const tbody = document.getElementById('modalProductsBody');
             tbody.innerHTML = '';
 
-            data.details.forEach((d, i) => {
+            data.orderDetails.forEach((d, i) => {
               const tr = document.createElement('tr');
               tr.innerHTML = `
                 <td>${i + 1}</td>

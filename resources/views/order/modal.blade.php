@@ -2,12 +2,12 @@
 <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <form id="form" method="POST">
+      <form id="form" method="POST" action="{{ isset($order) ? route('order.update', $order->id) : route('order.store') }}">
         @csrf
 
         <!-- HEADER -->
         <div class="modal-header">
-          <h5 class="modal-title" id="modalLabel">Add Order</h5>
+          <h5 class="modal-title" id="modalLabel">Order</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
@@ -64,8 +64,29 @@
                 </tr>
               </thead>
               <tbody id="productBody">
-                <!-- JS sẽ thêm dòng tại đây -->
-              </tbody>
+              @if(isset($order))
+                @method('PUT')
+                @foreach ($order_details as $detail)
+                  <tr>
+                    <td>
+                      <select name="product_details[]" class="form-select">
+                        @foreach ($product_details as $item)
+                          <option value="{{ $item->id }}" data-price="{{ $item->price }}"
+                            {{ $detail->product_detail_id == $item->id ? 'selected' : '' }}>
+                            {{ $item->product->code }} - {{ $item->product->name }} - {{ $item->color->name ?? $item->power->name }}
+                          </option>
+                        @endforeach
+                      </select>
+                    </td>
+                    <td><input type="number" name="quantities[]" class="form-control quantity" value="{{ $detail->quantity }}" /></td>
+                    <td><input type="number" name="prices[]" class="form-control price" value="{{ $detail->price }}" readonly /></td>
+                    <td><input type="text" class="form-control total-field" value="{{ $detail->quantity * $detail->price }}" readonly /></td>
+                    <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
+                  </tr>
+                @endforeach
+              @endif
+            </tbody>
+
             </table>
             <button type="button" class="btn btn-outline-primary" id="addRowBtn">+ Add Product</button>
           </div>

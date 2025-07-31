@@ -14,10 +14,9 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::all();
-        $product_details = ProductDetail::with('product')->get();
-        $product_details = ProductDetail::all();
-        $products = Product::all();
-        return view('order.index', compact('orders', 'product_details', 'products'));
+        $order_details = OrderDetail::all();
+        $product_details = ProductDetail::with('product', 'color', 'power')->get();
+        return view('order.index', compact('orders', 'product_details', 'order_details'));
     }
 
     public function create()
@@ -67,7 +66,27 @@ class OrderController extends Controller
             'name' => 'required',
         ]);
 
-        $order->update($request->only('code', 'name', 'order_date', 'address', 'status', 'total'));
+        $order->update([
+        'code' => $request->code,
+        'name' => $request->name,
+        'order_date' => $request->order_date ?? now(),
+        'address' => $request->address,
+        'status' => $request->status,
+        'total' => $request->total,
+        ]);
+
+        $order->orderDetails()->delete();
+
+        if ($request->has('product_details')) {
+            foreach ($request->product_details as $index => $product_detail_id) {
+                OrderDetail::create([
+                    'order_id' => $order->id,
+                    'product_detail_id' => $product_detail_id,
+                    'quantity' => $request->quantities[$index],
+                    'price' => $request->prices[$index],
+                ]);
+            }
+        }
 
         return redirect()->back()->with('success', 'Order updated successfully!');
     }
@@ -79,19 +98,19 @@ class OrderController extends Controller
     }
     public function show(Order $order)
     {
-        $order->load(['details.productDetail.product', 'details.productDetail.color', 'details.productDetail.power']);
+        $order->load(['orderDetails.productDetail.product', 'orderDetails.productDetail.color', 'orderDetails.productDetail.power']);
 
         return response()->json([
             'order' => $order,
-            'details' => $order->details,
+            'orderDetails' => $order->orderDetails,
         ]);
     }
-    public function getDetails(Order $order)
+    public function getDetails($id)
     {
-        $details = $order->details()->with('productDetail.product', 'productDetail.color', 'productDetail.power')->get();
-
-        return response()->json($details);
+        $order = Order::with('orderDetails')->findOrFail($id);
+        return response()->json($order->orderDetails);
     }
+
 
 
 }

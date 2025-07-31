@@ -67,7 +67,6 @@
                     data-order_date="{{ $order->order_date }}"
                     data-mode="edit"
                     data-action="{{ route('order.update', $order->id) }}"
-                    data-details='@json($order->orderDetails)'
                     data-bs-toggle="modal" data-bs-target="#modal">
                     <i class="fa fa-edit"></i>
                   </button>
@@ -91,7 +90,7 @@
     </div>
   </div>
 </div>
-@include('order.modal')
+@include('order.modal', ['product_details' => $product_details])
 @include('order.modal-view')
 @endsection
 
@@ -132,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (oldMethod) oldMethod.remove();
 
     if (mode === 'edit') {
-      modalTitle.textContent = 'Edit Other';
+      modalTitle.textContent = 'Edit Order';
       submitBtn.textContent = 'Update';
 
       const methodInput = document.createElement('input');
@@ -140,49 +139,8 @@ document.addEventListener('DOMContentLoaded', function () {
       methodInput.setAttribute('name', '_method');
       methodInput.setAttribute('value', 'PUT');
       form.appendChild(methodInput);
-
-      const orderId = button.getAttribute('data-id');
-      fetch(`/orders/${orderId}/details`)
-        .then(res => res.json())
-        .then(details => {
-          const tbody = document.getElementById('productBody');
-          tbody.innerHTML = ''; // Xóa dòng cũ
-
-          details.forEach(detail => {
-            const row = document.createElement('tr');
-
-            const selectedId = detail.product_detail_id;
-            const quantity = detail.quantity;
-            const price = detail.price;
-            const total = quantity * price;
-
-            let options = '';
-            @foreach ($product_details as $detail)
-              options += `<option value="{{ $detail->id }}" data-price="{{ $detail->price }}"
-                  ${selectedId == {{ $detail->id }} ? 'selected' : ''}>
-                  {{ $detail->product->code }} - {{ $detail->product->name }} - {{ $detail->color->name ?? $detail->power->name }}
-                </option>`;
-            @endforeach
-
-            row.innerHTML = `
-              <td>
-                <select name="product_details[]" class="form-select">
-                  ${options}
-                </select>
-              </td>
-              <td><input type="number" name="quantities[]" class="form-control quantity" min="1" value="${quantity}" /></td>
-              <td><input type="number" name="prices[]" class="form-control price" min="0" step="0.01" value="${price}" readonly /></td>
-              <td><input type="text" class="form-control total-field" value="${total}" readonly /></td>
-              <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
-            `;
-
-            tbody.appendChild(row);
-          });
-
-          updateGrandTotal(); // Cập nhật lại tổng
-        });
     } else {
-      modalTitle.textContent = 'Add Other';
+      modalTitle.textContent = 'Add Order';
       submitBtn.textContent = 'Save';
     }
   });

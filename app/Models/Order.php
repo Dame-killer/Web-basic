@@ -13,9 +13,9 @@ class Order extends Model
        'code', 'name', 'order_date', 'address', 'status', 'total'
     ];
    // Order.php
-   public function details()
+   public function orderDetails()
    {
-      return $this->hasMany(OrderDetail::class);
+      return $this->hasMany(OrderDetail::class);   
    }
 
    // OrderDetail.php

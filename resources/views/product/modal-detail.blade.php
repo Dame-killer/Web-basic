@@ -5,7 +5,7 @@
       <form id="form" method="POST">
         @csrf
         <div class="modal-header">
-          <h5 class="modal-title" id="modalLabel">Add Product Detail - {{ $product->code }}</h5>
+          <h5 class="modal-title" id="modalLabel">Product Detail - {{ $product->code }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
