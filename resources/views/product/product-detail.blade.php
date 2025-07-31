@@ -13,6 +13,7 @@
                 data-bs-target="#modal"
                 data-mode="add"
                 data-action="{{ route('product_detail.store') }}"
+                data-product_id="{{ $product->id }}"
             >
                 Add Product Detail
             </button>
@@ -28,6 +29,8 @@
                     <th>Size</th>
                     <th>Color</th>           
                     <th>Power</th>        
+                    <th>Quantity</th>        
+                    <th>Price</th>        
                     <th class="text-end">Actions</th>
                 </tr>
                 </thead>
@@ -36,9 +39,11 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $product->code }}</td>
-                            <td>{{ $detail->size?->name ?? '-' }}</td>
-                            <td>{{ $detail->color?->name ?? '-' }}</td>
-                            <td>{{ $detail->power?->name ?? '-' }}</td>
+                            <td>{{ $detail->size?->name ?? '' }}</td>
+                            <td>{{ $detail->color?->name ?? '' }}</td>
+                            <td>{{ $detail->power?->name ?? '' }}</td>
+                            <td>{{ $detail->stock ?? '-' }}</td>
+                            <td>{{ $detail->price ?? '-' }}</td>
                             <td class="text-end">
                                 {{-- Nút Edit --}}
                                 <button class="btn btn-sm btn-warning"
@@ -49,6 +54,8 @@
                                 data-power_id="{{ $detail->power_id }}"
                                 data-size_id="{{ $detail->size_id }}"
                                 data-color_id="{{ $detail->color_id }}"
+                                data-stock="{{ $detail->stock }}"
+                                data-price="{{ $detail->price }}"
                                 data-action="{{ route('product_detail.update', $detail->id) }}"
                                 >
                                 <i class="fa fa-edit"></i>
@@ -83,6 +90,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('form');
   const sizeSelect = document.getElementById('size_id');
   const colorSelect = document.getElementById('color_id');
+  const stockSelect = document.getElementById('stock');
+  const priceSelect = document.getElementById('price');
   const powerSelect = document.getElementById('power_id');
   const productIdInput = document.getElementById('product_id');
   const modalTitle = document.getElementById('modalLabel');
@@ -95,12 +104,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const size_id = button.getAttribute('data-size_id') || '';
     const color_id = button.getAttribute('data-color_id') || '';
+    const stock = button.getAttribute('data-stock') || '';
+    const price = button.getAttribute('data-price') || '';
     const power_id = button.getAttribute('data-power_id') || '';
     const product_id = button.getAttribute('data-product_id') || '';
 
     form.action = action;
     sizeSelect.value = size_id;
     colorSelect.value = color_id;
+    stockSelect.value = stock;
+    priceSelect.value = price;
     powerSelect.value = power_id;
     productIdInput.value = product_id;
 

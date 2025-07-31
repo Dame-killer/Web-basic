@@ -27,6 +27,7 @@
                 <th>Name</th>
                 <th>Order date</th>           
                 <th>Address</th>
+                <th>Total</th>
                 <th>Status</th>        
                 <th class="text-end">Actions</th>
               </tr>
@@ -39,29 +40,35 @@
                 <td>{{ $order->name }}</td>
                 <td>{{ $order->order_date }}</td>
                 <td>{{ $order->address }}</td>
+                <td>{{ $order->total }}</td>
                 <td>
                   @if($order->status == 0)
-                    <span class="badge bg-warning text-dark">Waiting for processing</span>
+                    <span class="badge bg-warning text-dark">Waiting</span>
                   @elseif($order->status == 1)
                     <span class="badge bg-success">Processed</span>
                   @else
                     <span class="badge bg-secondary">Unknown</span>
                   @endif
                 </td>
-
                 <td class="text-end"> 
+                  <!-- Nút xem -->
+                  <button type="button" class="btn btn-sm btn-info btn-show-details"
+                          data-id="{{ $order->id }}">
+                    <i class="fa fa-eye"></i>
+                  </button>
                   {{-- Nút Edit --}}
-                  <button class="btn btn-sm btn-warning"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modal"
-                    data-mode="edit"
+                  <button type="button" class="btn btn-sm btn-warning"
                     data-id="{{ $order->id }}"
                     data-code="{{ $order->code }}"
                     data-name="{{ $order->name }}"
-                    data-order_date="{{ $order->order_date }}"
                     data-address="{{ $order->address }}"
                     data-status="{{ $order->status }}"
-                  >
+                    data-total="{{ $order->total }}"
+                    data-order_date="{{ $order->order_date }}"
+                    data-mode="edit"
+                    data-action="{{ route('order.update', $order->id) }}"
+                    data-details='@json($order->orderDetails)'
+                    data-bs-toggle="modal" data-bs-target="#modal">
                     <i class="fa fa-edit"></i>
                   </button>
 
@@ -85,6 +92,7 @@
   </div>
 </div>
 @include('order.modal')
+@include('order.modal-view')
 @endsection
 
 <script>
@@ -96,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const statusInput = document.getElementById('status');
   const order_dateInput = document.getElementById('order_date');
   const addressInput = document.getElementById('address');
+  const totalInput = document.getElementById('total');
   const modalTitle = document.getElementById('modalLabel');
   const submitBtn = document.getElementById('submitBtn');
 
@@ -108,12 +117,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const status = button.getAttribute('data-status') || '';
     const order_date = button.getAttribute('data-order_date') || '';
     const address = button.getAttribute('data-address') || '';
+    const total = button.getAttribute('data-total') || '';
 
     form.action = action;
     codeInput.value = code;
     nameInput.value = name;
     statusInput.value = status;
     addressInput.value = address;
+    totalInput.value = total;
     order_dateInput.value = order_date;
 
     // Xoá input _method cũ nếu có
@@ -129,6 +140,47 @@ document.addEventListener('DOMContentLoaded', function () {
       methodInput.setAttribute('name', '_method');
       methodInput.setAttribute('value', 'PUT');
       form.appendChild(methodInput);
+
+      const orderId = button.getAttribute('data-id');
+      fetch(`/orders/${orderId}/details`)
+        .then(res => res.json())
+        .then(details => {
+          const tbody = document.getElementById('productBody');
+          tbody.innerHTML = ''; // Xóa dòng cũ
+
+          details.forEach(detail => {
+            const row = document.createElement('tr');
+
+            const selectedId = detail.product_detail_id;
+            const quantity = detail.quantity;
+            const price = detail.price;
+            const total = quantity * price;
+
+            let options = '';
+            @foreach ($product_details as $detail)
+              options += `<option value="{{ $detail->id }}" data-price="{{ $detail->price }}"
+                  ${selectedId == {{ $detail->id }} ? 'selected' : ''}>
+                  {{ $detail->product->code }} - {{ $detail->product->name }} - {{ $detail->color->name ?? $detail->power->name }}
+                </option>`;
+            @endforeach
+
+            row.innerHTML = `
+              <td>
+                <select name="product_details[]" class="form-select">
+                  ${options}
+                </select>
+              </td>
+              <td><input type="number" name="quantities[]" class="form-control quantity" min="1" value="${quantity}" /></td>
+              <td><input type="number" name="prices[]" class="form-control price" min="0" step="0.01" value="${price}" readonly /></td>
+              <td><input type="text" class="form-control total-field" value="${total}" readonly /></td>
+              <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
+            `;
+
+            tbody.appendChild(row);
+          });
+
+          updateGrandTotal(); // Cập nhật lại tổng
+        });
     } else {
       modalTitle.textContent = 'Add Other';
       submitBtn.textContent = 'Save';

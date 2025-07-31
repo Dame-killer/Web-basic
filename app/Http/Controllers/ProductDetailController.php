@@ -35,14 +35,15 @@ class ProductDetailController extends Controller
         // Lưu dữ liệu
         ProductDetail::create([
             'product_id' => $request->product_id,
-            'size_id' => $request->size_id,
-            'color_id' => $request->color_id,
-            'power_id' => $request->power_id,
+            'size_id' => $request->size_id ?? null,
+            'color_id' => $request->color_id ?? null, 
+            'power_id' => $request->power_id ?? null,
             'stock' => $request->stock,
+            'price' => $request->price, 
         ]);
 
         // Chuyển hướng sau khi thêm
-        return redirect()->route('product.product-detail')->with('success', 'Product detail added successfully!');
+        return redirect()->route('product.show', $request->product_id)->with('success', 'Product detail added successfully!');
     }
 
 
@@ -52,7 +53,7 @@ class ProductDetailController extends Controller
             'name' => 'required',
         ]);
 
-        $product->update($request->only('name', 'code', 'description', 'brand_id', 'category_id'));
+        $product->update($request->only('name', 'code', 'description', 'brand_id', 'category_id', 'price', 'stock'));
 
         return redirect()->back()->with('success', 'Product detail updated successfully!');
     }

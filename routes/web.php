@@ -48,6 +48,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('order', OrderController::class);
     Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order.show');
+    Route::get('/orders/{order}/details', [OrderController::class, 'getDetails']);
 
     Route::resource('product_detail', ProductDetailController::class);
     Route::post('/product_detail/store', [ProductDetailController::class, 'store'])->name('product_detail.store');
