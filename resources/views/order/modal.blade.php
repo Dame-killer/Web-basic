@@ -102,7 +102,7 @@
       const details = JSON.parse(button.getAttribute('data-details'));
 
       // Set action và thêm method PUT
-      form.action = `/orders/${order.id}`;
+      form.action = `/order/${order.id}`;
       if (!methodInput) {
         const input = document.createElement('input');
         input.type = 'hidden';
@@ -125,7 +125,7 @@
       });
     } else {
       // Mode add
-      form.action = '/orders';
+      form.action = '/order';
       if (methodInput) methodInput.remove();
     }
 

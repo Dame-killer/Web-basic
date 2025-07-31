@@ -40,7 +40,7 @@
       button.addEventListener('click', () => {
         const orderId = button.getAttribute('data-id');
 
-        fetch(`/orders/${orderId}`)
+        fetch(`/order/${orderId}`)
           .then(res => res.json())
           .then(data => {
             document.getElementById('modalCode').textContent = data.order.code;
